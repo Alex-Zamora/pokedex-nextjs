@@ -122,10 +122,24 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { name } = params as { name: string };
 
+  const pokemon = await getPokemonInfo(name);
+
+  if (!pokemon) {
+    return {
+      redirect: {
+        destination: "/",
+        // el redirect no es permanente por que puede que exista un pokemon con el name solicitado
+        permanent: false
+      }
+    }
+  }
+
   return {
     props: {
-      pokemon: await getPokemonInfo(name)
+      pokemon
     },
+    // incremental static regeneration
+    revalidate: 86400 // volver a validar cada 24 hrs
   };
 };
 
